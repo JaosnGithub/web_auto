@@ -6,8 +6,10 @@ from pages.users_login_page import UsersLoginPage
 from pages.users_feedbackiframe_page import UsersFeedbackiframePage
 from pages.users_userinfo_page import UsersUserinfoPage
 from common.connect_mysql import DbConnect,dbinfo
+import platform
+from selenium.webdriver.chrome.options import Options
 
-
+'''
 @pytest.fixture(scope='session',name='driver')
 def browser():
     driver = webdriver.Chrome()
@@ -15,7 +17,31 @@ def browser():
     yield driver
     sleep(1)
     driver.quit()
+'''
 
+# 代码兼容windows和linux系统运行
+@pytest.fixture(scope='session', name='driver')
+def browser():
+    '''定义一个全局driver'''
+    if platform.system() == 'Windows':
+        # windows系统
+        _driver = webdriver.Chrome()
+        _driver.maximize_window()
+    else:
+        #linux系统
+        chrome_options = Options()
+        chrome_options.add_argument('--windows-size=1920,1080')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--headless')
+
+        # _driver = webdriver.Chrome()
+        _driver = webdriver.Chrome(chrome_options=chrome_options)
+
+    yield _driver
+    #退出浏览器
+    _driver.quit()
 
 @pytest.fixture(scope='session')
 def base_url():
